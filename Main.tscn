@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://chyvftimkqe5s"]
+
+[ext_resource type="Script" path="res://Main.gd" id="1_pp28r"]
+[ext_resource type="Script" path="res://FPS.gd" id="2_0er0i"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_pp28r")
+
+[node name="GridTex" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FPS" type="Label" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("2_0er0i")
