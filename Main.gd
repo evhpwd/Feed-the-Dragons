@@ -16,6 +16,7 @@ const RESERVED:= -1
 
 @onready var image = Image.create(width, height, false, Image.FORMAT_RGB8)
 @onready var grid_sprite = $GridTex
+var gravity_down = false
 
 func _ready():
 	grid.resize(width * height)
@@ -44,6 +45,8 @@ func _process(_delta):
 		changed = false
 
 func _input(event):
+	if event is InputEventKey and event.is_action_pressed("swap_gravity"):
+		gravity_down = !gravity_down
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var viewport = get_viewport()
 		if (
@@ -88,15 +91,15 @@ func bresenhams_line(point1, point2):
 
 func _physics_process(_delta):
 	changed = true
-	grid[450 + randi() % 100] = 1
-	grid[400] = 1
+	grid[int(width * 80.5) + randi() % 100] = 1
+	grid[width * 80 + 30] = 1
 
 	var new_grid := PackedByteArray()
 	new_grid.resize(width * height)
 	new_grid.fill(AIR)
 
-	for row in range(height-1, -1, -1):
-		for col in range(width-1, -1, -1):
+	for row in range(height):
+		for col in range(width):
 			var cell = grid[(row * width) + col]
 			if cell == SAND:
 				if not move_cell(row, col, new_grid):
@@ -109,7 +112,7 @@ func _physics_process(_delta):
 
 func move_cell(row, col, new_grid):
 	var current = (row * width) + col
-	var below = ((row + 1) * width) + col
+	var below = ((row + (1 if gravity_down else -1)) * width) + col
 	
 	if grid[below] == AIR:
 		new_grid[below] = grid[current]
