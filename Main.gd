@@ -5,25 +5,28 @@ var changed = false
 const height = 200
 const width = 300
 var spawn = 0
-# To get a color code
-# - print("%X" % Color.COLOR_NAME)
-# - Flip the bytes of the result (AB CD EF GH -> GH EF CD AB)
-# - Put that into the below format
-const AIR   := 0
-const SAND  := 1
-const GRASS := 2
-const RESERVED:= -1
+
+enum CellType {
+	AIR,
+	SAND,
+	GRASS,
+	RESERVED,
+}
 
 @onready var image = Image.create(width, height, false, Image.FORMAT_RGB8)
 @onready var grid_sprite = $GridTex
-var gravity_down = false
+var gravity_dir := Vector2i.DOWN
+
+## Gets the value of a cell on the [member grid]
+func get_cell(pos: Vector2i) -> CellType:
+	return grid[pos.y * width + pos.x] as CellType
 
 func _ready():
 	grid.resize(width * height)
-	grid.fill(AIR)
+	grid.fill(CellType.AIR)
 	
 	for i in range(width * (height / 2), width * height):
-		grid[i] = GRASS
+		grid[i] = CellType.GRASS
 
 	grid_sprite.texture = ImageTexture.create_from_image(image)
 	grid_sprite.size = get_viewport().size
@@ -35,18 +38,18 @@ func _process(_delta):
 		for row in range(0, height):
 			for col in range(0, width):
 				var cell = grid[(row * width) + col]
-				if cell == SAND:
+				if cell == CellType.SAND:
 					image.set_pixel(col, row, Color.SANDY_BROWN)
-				elif cell == GRASS:
+				elif cell == CellType.GRASS:
 					image.set_pixel(col, row, Color.SEA_GREEN)
-				elif cell == AIR:
+				elif cell == CellType.AIR:
 					image.set_pixel(col, row, Color.SKY_BLUE)
 		grid_sprite.texture.update(image)
 		changed = false
 
 func _input(event):
 	if event is InputEventKey and event.is_action_pressed("swap_gravity"):
-		gravity_down = !gravity_down
+		gravity_dir = Vector2i(0, -gravity_dir.y)
 	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var viewport = get_viewport()
 		if (
@@ -65,8 +68,8 @@ func _input(event):
 			position.x *= viewport_to_grid.x
 			position.y *= viewport_to_grid.y
 
-			if grid[(position.y * width) + position.x] == AIR:
-				grid[(position.y * width) + position.x] = GRASS
+			if grid[(position.y * width) + position.x] == CellType.AIR:
+				grid[(position.y * width) + position.x] = CellType.GRASS
 
 func bresenhams_line(point1, point2):
 	var points = []
@@ -96,41 +99,58 @@ func _physics_process(_delta):
 
 	var new_grid := PackedByteArray()
 	new_grid.resize(width * height)
-	new_grid.fill(AIR)
+	new_grid.fill(CellType.AIR)
 
 	for row in range(height):
 		for col in range(width):
 			var cell = grid[(row * width) + col]
-			if cell == SAND:
+			if cell == CellType.SAND:
 				if not move_cell(row, col, new_grid):
-					new_grid[(row * width) + col] = SAND
-			elif cell == GRASS:
-				new_grid[(row * width) + col] = GRASS
-			elif cell == AIR: pass
+					new_grid[(row * width) + col] = CellType.SAND
+			elif cell == CellType.GRASS:
+				new_grid[(row * width) + col] = CellType.GRASS
+			elif cell == CellType.AIR: pass
 
 	grid = new_grid
 
 func move_cell(row, col, new_grid):
 	var current = (row * width) + col
-	var below = ((row + (1 if gravity_down else -1)) * width) + col
+	var below = ((row + gravity_dir.y) * width) + col
 	
-	if grid[below] == AIR:
+	if can_move(Vector2i(col, row), gravity_dir):
 		new_grid[below] = grid[current]
 		return true
-	
+
 	if row + 1 >= height:
 		return false
 	if col + 1 >= width or col - 1 < 0:
 		return false
 
-	var left_right = (randi_range(0, 1) * 2) - 1
-	if grid[below + left_right] == AIR and (grid[current + left_right] == AIR or grid[below] == SAND):
-		grid[below + left_right] = RESERVED
-		new_grid[below + left_right] = grid[current]
-		return true
-	elif grid[below - left_right] == AIR and (grid[current - left_right] == AIR or grid[below] == SAND):
-		grid[below - left_right] = RESERVED
-		new_grid[below - left_right] = grid[current]
+	var dir = 1 if randi_range(0, 1) == 1 else -1
+	if can_move(Vector2i(col, row), Vector2i(dir, gravity_dir.y)):
+		grid[below + dir] = CellType.RESERVED
+		new_grid[below + dir] = grid[current]
 		return true
 
+	if can_move(Vector2i(col, row), Vector2i(-dir, gravity_dir.y)):
+		grid[below - dir] = CellType.RESERVED
+		new_grid[below - dir] = grid[current]
+		return true
+
+	return false
+
+# Rules for SAND particle movement
+# - Can move down into AIR
+# - Can move diagonally downward into AIR if:
+#   - Cell on side is AIR or...
+#   - Cell below is SAND
+func can_move(from: Vector2i, dir: Vector2i) -> bool:
+	var new_pos = from + dir
+	if get_cell(new_pos) != CellType.AIR: return false
+	if dir == gravity_dir: return true
+	if dir == Vector2i(1, gravity_dir.y) or dir == Vector2i(-1, gravity_dir.y):
+		var adj_dir = Vector2i(dir.x, 0)
+		var adj = from + adj_dir
+		if get_cell(adj) == CellType.AIR: return true
+		if get_cell(from + gravity_dir) == CellType.SAND: return true
 	return false
