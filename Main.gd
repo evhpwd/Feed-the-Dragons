@@ -125,7 +125,7 @@ func bresenhams_line(point1: Vector2i, point2: Vector2i) -> Array[Vector2i]:
 func _physics_process(_delta):
 	changed = true
 	grid[int(width * 80.5) + randi() % 100] = 1
-	grid[width * height / 2 + 30] = 1 #warning-ignore:integer_division
+	grid[width * int(float(height) / 2.0) + 30] = 1
 
 	var new_grid := PackedByteArray()
 	new_grid.resize(width * height)
