@@ -2,10 +2,9 @@ extends Node
 class_name Main
 
 var grid := PackedByteArray()
-var changed = false
-const height = 200
-const width = 300
-var spawn = 0
+var changed := false
+const height := 200
+const width := 300
 
 
 enum CellType {
@@ -40,6 +39,7 @@ func _ready():
 	grid_sprite.texture = ImageTexture.create_from_image(image)
 	grid_sprite.size = get_viewport().size
 	
+	# Poll mouse more frequently for smoother lines
 	Input.use_accumulated_input = false
 
 func _process(_delta):
@@ -130,12 +130,12 @@ func _physics_process(_delta):
 
 	grid = new_grid
 
-func move_cell(row, col, new_grid) -> bool:
-	var current = (row * width) + col
+func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
+	var current := (row * width) + col
 	assert(grid[current] == CellType.SAND)
-	var below = ((row + gravity_dir.y) * width) + col
+	var below := ((row + gravity_dir.y) * width) + col
 	
-	var next_cell := int(below)
+	var next_cell := below
 	if can_move(Vector2i(col, row), gravity_dir):
 		if handle_movement(new_grid, current, next_cell): return true
 
@@ -144,7 +144,7 @@ func move_cell(row, col, new_grid) -> bool:
 	if col + 1 >= width or col - 1 < 0:
 		return false
 
-	var dir = 1 if randi_range(0, 1) == 1 else -1
+	var dir := 1 if randi_range(0, 1) == 1 else -1
 	next_cell = below + dir
 	if can_move(Vector2i(col, row), Vector2i(dir, gravity_dir.y)):
 		if handle_movement(new_grid, current, next_cell): return true
@@ -177,7 +177,7 @@ func handle_movement(new_grid: PackedByteArray, current: int, next_cell: int) ->
 #   - Remove sand
 #   - Increment count
 func can_move(from: Vector2i, dir: Vector2i) -> bool:
-	var new_pos = from + dir
+	var new_pos := from + dir
 	if grid[new_pos.y * width + new_pos.x] != CellType.AIR and \
 	   grid[new_pos.y * width + new_pos.x] < CellType.GOAL1: 
 		return false
