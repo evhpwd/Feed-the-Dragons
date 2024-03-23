@@ -1,3 +1,5 @@
 # Godot 4+ specific ignores
 .godot/
 addons/godot-git-plugin/
+FTD.exe
+FTD.console.exe

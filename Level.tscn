@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://det6ti2f42pp1"]
+
+[ext_resource type="Script" path="res://Level.gd" id="1_y2xoj"]
+
+[node name="Level" type="Node2D"]
+script = ExtResource("1_y2xoj")
+
+[node name="Count1" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Count2" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Count3" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0

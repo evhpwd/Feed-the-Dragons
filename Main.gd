@@ -1,4 +1,5 @@
 extends Node
+class_name Main
 
 var grid := PackedByteArray()
 var changed = false
@@ -6,28 +7,36 @@ const height = 200
 const width = 300
 var spawn = 0
 
+
 enum CellType {
 	AIR,
 	SAND,
 	GRASS,
 	RESERVED,
+	GOAL1,
+	GOAL2,
+	GOAL3,
 }
 
-@onready var image = Image.create(width, height, false, Image.FORMAT_RGB8)
-@onready var grid_sprite = $GridTex
-var gravity_dir := Vector2i.DOWN
+var counts := {CellType.GOAL1: 0, CellType.GOAL2: 0, CellType.GOAL3: 0}
 
-## Gets the value of a cell on the [member grid]
-func get_cell(pos: Vector2i) -> CellType:
-	return grid[pos.y * width + pos.x] as CellType
+@onready var image := Image.create(width, height, false, Image.FORMAT_RGBAF)
+@onready var grid_sprite := $GridTex
+var gravity_dir := Vector2i.DOWN
 
 func _ready():
 	grid.resize(width * height)
 	grid.fill(CellType.AIR)
 	
-	for i in range(width * (height / 2), width * height):
+	for i in range(width * int(height / 1.2), width * height):
 		grid[i] = CellType.GRASS
-
+	
+	var emitter_start := height * int(float(width) / 2.0)
+	var emitter_end := height * int(float(width) / 1.5)
+	for i in range(emitter_start, emitter_end, width):
+		for n in range(i + 100, i + 135):
+			grid[n] = CellType.GOAL1
+	
 	grid_sprite.texture = ImageTexture.create_from_image(image)
 	grid_sprite.size = get_viewport().size
 	
@@ -44,6 +53,11 @@ func _process(_delta):
 					image.set_pixel(col, row, Color.SEA_GREEN)
 				elif cell == CellType.AIR:
 					image.set_pixel(col, row, Color.SKY_BLUE)
+				elif cell >= CellType.GOAL1:
+					if counts[cell] < 100:
+						image.set_pixel(col, row, Color.BROWN)
+					else:
+						image.set_pixel(col, row, Color.GREEN)
 		grid_sprite.texture.update(image)
 		changed = false
 
@@ -95,7 +109,7 @@ func bresenhams_line(point1, point2):
 func _physics_process(_delta):
 	changed = true
 	grid[int(width * 80.5) + randi() % 100] = 1
-	grid[width * 80 + 30] = 1
+	grid[width * height / 2 + 30] = 1 #warning-ignore:integer_division
 
 	var new_grid := PackedByteArray()
 	new_grid.resize(width * height)
@@ -105,21 +119,25 @@ func _physics_process(_delta):
 		for col in range(width):
 			var cell = grid[(row * width) + col]
 			if cell == CellType.SAND:
+
 				if not move_cell(row, col, new_grid):
 					new_grid[(row * width) + col] = CellType.SAND
+
 			elif cell == CellType.GRASS:
 				new_grid[(row * width) + col] = CellType.GRASS
-			elif cell == CellType.AIR: pass
+			elif cell == CellType.GOAL1:
+				new_grid[(row * width) + col] = CellType.GOAL1
 
 	grid = new_grid
 
-func move_cell(row, col, new_grid):
+func move_cell(row, col, new_grid) -> bool:
 	var current = (row * width) + col
+	assert(grid[current] == CellType.SAND)
 	var below = ((row + gravity_dir.y) * width) + col
 	
+	var next_cell := int(below)
 	if can_move(Vector2i(col, row), gravity_dir):
-		new_grid[below] = grid[current]
-		return true
+		if handle_movement(new_grid, current, next_cell): return true
 
 	if row + 1 >= height:
 		return false
@@ -127,16 +145,27 @@ func move_cell(row, col, new_grid):
 		return false
 
 	var dir = 1 if randi_range(0, 1) == 1 else -1
+	next_cell = below + dir
 	if can_move(Vector2i(col, row), Vector2i(dir, gravity_dir.y)):
-		grid[below + dir] = CellType.RESERVED
-		new_grid[below + dir] = grid[current]
-		return true
+		if handle_movement(new_grid, current, next_cell): return true
 
+	next_cell = below - dir
 	if can_move(Vector2i(col, row), Vector2i(-dir, gravity_dir.y)):
-		grid[below - dir] = CellType.RESERVED
-		new_grid[below - dir] = grid[current]
-		return true
+		if handle_movement(new_grid, current, next_cell): return true
+	return false
 
+func handle_movement(new_grid: PackedByteArray, current: int, next_cell: int) -> bool:
+	assert(grid[current] == CellType.SAND, "sand????????")
+	if grid[next_cell] >= CellType.GOAL1:
+		counts[grid[next_cell]] += 1
+		counts[grid[next_cell]] = clamp(counts[grid[next_cell]], 0, 100)
+		#print(counts[grid[next_cell]])
+		new_grid[current] = CellType.AIR
+		return true
+	elif grid[next_cell] == CellType.AIR:
+		grid[next_cell] = CellType.RESERVED
+		new_grid[next_cell] = grid[current]
+		return true
 	return false
 
 # Rules for SAND particle movement
@@ -144,13 +173,18 @@ func move_cell(row, col, new_grid):
 # - Can move diagonally downward into AIR if:
 #   - Cell on side is AIR or...
 #   - Cell below is SAND
+# - If moves into GOAL cell
+#   - Remove sand
+#   - Increment count
 func can_move(from: Vector2i, dir: Vector2i) -> bool:
 	var new_pos = from + dir
-	if get_cell(new_pos) != CellType.AIR: return false
+	if grid[new_pos.y * width + new_pos.x] != CellType.AIR and \
+	   grid[new_pos.y * width + new_pos.x] < CellType.GOAL1: 
+		return false
 	if dir == gravity_dir: return true
 	if dir == Vector2i(1, gravity_dir.y) or dir == Vector2i(-1, gravity_dir.y):
-		var adj_dir = Vector2i(dir.x, 0)
-		var adj = from + adj_dir
-		if get_cell(adj) == CellType.AIR: return true
-		if get_cell(from + gravity_dir) == CellType.SAND: return true
+		if grid[from.y * width + from.x + dir.x] == CellType.AIR or \
+		   grid[from.y * width + from.x + dir.x] >= CellType.GOAL1: 
+			return true
+		if grid[(from.y + gravity_dir.y) * width + from.x] == CellType.SAND: return true
 	return false
