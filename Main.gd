@@ -61,29 +61,44 @@ func _process(_delta):
 		grid_sprite.texture.update(image)
 		changed = false
 
+##Maps viewport coordinates (i.e. from a click) to the corresponding grid position
+func viewport_to_grid(pos: Vector2i) -> Vector2i:
+	var viewport := get_viewport()
+	var mapping = Vector2(
+		float(width) / float(viewport.size.x),
+		float(height) / float(viewport.size.y)
+	)
+	pos.x *= mapping.x
+	pos.y *= mapping.y
+	return pos
+
 func _input(event):
 	if event is InputEventKey and event.is_action_pressed("swap_gravity"):
 		gravity_dir = Vector2i(0, -gravity_dir.y)
-	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var viewport = get_viewport()
 		if (
 			event.position.x < 0 or event.position.y < 0 or \
 			event.position.x >= viewport.size.x or event.position.y >= viewport.size.y
 		):
 			return
-		var viewport_to_grid = Vector2(
-			float(width) / float(viewport.size.x),
-			float(height) / float(viewport.size.y)
-		)
 
 		var last_point = event.position - event.relative
 		var points = bresenhams_line(last_point, event.position)
 		for position in points:
-			position.x *= viewport_to_grid.x
-			position.y *= viewport_to_grid.y
-
-			if grid[(position.y * width) + position.x] == CellType.AIR:
-				grid[(position.y * width) + position.x] = CellType.GRASS
+			var mapped := viewport_to_grid(position)
+			if grid[(mapped.y * width) + mapped.x] == CellType.AIR:
+				grid[(mapped.y * width) + mapped.x] = CellType.GRASS
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		var viewport = get_viewport()
+		if (
+			event.position.x < 0 or event.position.y < 0 or \
+			event.position.x >= viewport.size.x or event.position.y >= viewport.size.y
+		):
+			return
+		var mapped := viewport_to_grid(event.position)
+		if grid[(mapped.y * width) + mapped.x] == CellType.AIR:
+			grid[(mapped.y * width) + mapped.x] = CellType.GRASS
 
 func bresenhams_line(point1, point2):
 	var points = []
