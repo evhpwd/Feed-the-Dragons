@@ -100,25 +100,26 @@ func _input(event):
 		if grid[(mapped.y * width) + mapped.x] == CellType.AIR:
 			grid[(mapped.y * width) + mapped.x] = CellType.GRASS
 
-func bresenhams_line(point1, point2):
-	var points = []
-	var dx = abs(point2[0] - point1[0])
-	var dy = -abs(point2[1] - point1[1])
-	var err = dx + dy
-	var e2 = 2 * err
-	var sx = 1 if point1[0] < point2[0] else -1
-	var sy = 1 if point1[1] < point2[1] else -1
+func bresenhams_line(point1: Vector2i, point2: Vector2i) -> Array[Vector2i]:
+	var points: Array[Vector2i] = []
+	var d := (point2 - point1).abs()
+	var dx := d.x
+	var dy := -d.y
+	var err := dx + dy
+	var e2 := 2 * err
+	var sx := 1 if point1.x < point2.x else -1
+	var sy := 1 if point1.y < point2.y else -1
 	while true:
-		points.append(Vector2i(point1[0], point1[1]))
-		if point1[0] == point2[0] and point1[1] == point2[1]:
+		points.append(point1)
+		if point1 == point2:
 			break
 		e2 = 2 * err
 		if e2 >= dy:
 			err += dy
-			point1[0] += sx
+			point1.x += sx
 		if e2 <= dx:
 			err += dx
-			point1[1] += sy
+			point1.y += sy
 	return points
 
 func _physics_process(_delta):
