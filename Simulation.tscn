@@ -1,12 +1,12 @@
 [gd_scene load_steps=5 format=3 uid="uid://chyvftimkqe5s"]
 
-[ext_resource type="Script" path="res://Main.gd" id="1_pp28r"]
-[ext_resource type="Script" path="res://FPS.gd" id="2_0er0i"]
-[ext_resource type="Script" path="res://TempScore.gd" id="3_ehjx4"]
-[ext_resource type="Script" path="res://SpeedSlider.gd" id="4_dficb"]
+[ext_resource type="Script" path="res://Simulation.gd" id="1_m3n8q"]
+[ext_resource type="Script" path="res://FPS.gd" id="2_rnqmu"]
+[ext_resource type="Script" path="res://TempScore.gd" id="3_tk5dj"]
+[ext_resource type="Script" path="res://SpeedSlider.gd" id="4_y7ufi"]
 
-[node name="Main" type="Node2D"]
-script = ExtResource("1_pp28r")
+[node name="Simulation" type="Node2D"]
+script = ExtResource("1_m3n8q")
 
 [node name="GridTex" type="TextureRect" parent="."]
 offset_right = 40.0
@@ -18,7 +18,7 @@ offset_top = 4.0
 offset_right = 62.0
 offset_bottom = 27.0
 text = "FPS: 60"
-script = ExtResource("2_0er0i")
+script = ExtResource("2_rnqmu")
 
 [node name="TempScore" type="Label" parent="."]
 offset_left = 506.0
@@ -26,11 +26,11 @@ offset_top = 484.0
 offset_right = 630.0
 offset_bottom = 563.0
 text = "0"
-script = ExtResource("3_ehjx4")
+script = ExtResource("3_tk5dj")
 
 [node name="SpeedSlider" type="Node2D" parent="."]
 position = Vector2(8, 39)
-script = ExtResource("4_dficb")
+script = ExtResource("4_y7ufi")
 
 [node name="Label" type="Label" parent="SpeedSlider"]
 offset_right = 40.0

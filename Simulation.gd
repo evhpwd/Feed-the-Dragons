@@ -1,5 +1,5 @@
 extends Node
-class_name Main
+class_name Simulation
 
 var grid := PackedByteArray()
 var changed := false
