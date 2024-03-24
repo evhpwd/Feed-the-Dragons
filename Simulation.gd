@@ -26,7 +26,7 @@ var brush_type := CellType.GRASS
 @onready var image := Image.create(width, height, false, Image.FORMAT_RGBAF)
 @onready var grid_sprite := $GridTex
 var gravity_dir := Vector2i.DOWN
-var cell_colors: Array[Color]
+var cell_colors: Array
 
 func _ready():
 	cell_colors.resize(CellType.LENGTH)
@@ -47,7 +47,7 @@ func _process(_delta):
 		for row in range(0, height):
 			for col in range(0, width):
 				var cell := grid[(row * width) + col]
-				var color := cell_colors[cell]
+				var color = cell_colors[cell]
 				if color != null:
 					image.set_pixel(col, row, color)
 				elif cell >= CellType.GOAL1 && cell <= CellType.GOAL3:
