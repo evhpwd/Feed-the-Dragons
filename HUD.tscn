@@ -14,7 +14,6 @@ script/source = "extends OptionButton
 script = ExtResource("1_lha12")
 
 [node name="PlayButton" type="Button" parent="."]
-anchors_preset = -1
 offset_left = 15.0
 offset_top = 80.0
 offset_right = 115.0
@@ -67,7 +66,15 @@ offset_right = 115.0
 offset_bottom = 240.0
 script = SubResource("GDScript_4fjbo")
 
+[node name="ExportButton" type="Button" parent="."]
+offset_left = 15.0
+offset_top = 250.0
+offset_right = 115.0
+offset_bottom = 281.0
+text = "Export"
+
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="EditorButton" to="." method="_on_editor_button_pressed"]
 [connection signal="value_changed" from="SpeedSlider/HSlider" to="SpeedSlider" method="_on_slider_change"]
 [connection signal="item_selected" from="BrushChoice" to="." method="_on_brush_choice_item_selected"]
+[connection signal="pressed" from="ExportButton" to="." method="_on_export_button_pressed"]

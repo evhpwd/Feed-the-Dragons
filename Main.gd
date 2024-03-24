@@ -45,4 +45,21 @@ func _on_hud_start_game():
 	if not added:
 		add_child(sim)
 		added = true
-	
+
+func grid_to_json(grid: PackedByteArray) -> String:
+	var blocktypes := {}
+	for row in range(SIM_HEIGHT):
+		for col in range(SIM_WIDTH):
+			var cell := grid[row * SIM_WIDTH + col]
+			if cell == Simulation.CellType.AIR: continue
+			if not blocktypes.has(cell): blocktypes[cell] = []
+			blocktypes[cell].append(Vector2i(col, row))
+	var level := {
+		"emitter": Vector2i(int(float(SIM_WIDTH) / 2.0), int(float(SIM_HEIGHT) * 0.2)),
+		"blocks": blocktypes,
+	}
+	return JSON.stringify(level)
+
+func _on_hud_export_clicked():
+	var file := FileAccess.open("user://level.json", FileAccess.WRITE)
+	file.store_line(grid_to_json(sim.grid))
