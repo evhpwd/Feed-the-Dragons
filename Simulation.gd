@@ -11,10 +11,11 @@ enum CellType {
 	AIR,
 	SAND,
 	GRASS,
-	RESERVED,
 	GOAL1,
 	GOAL2,
 	GOAL3,
+	# Cells below this point aren't available in level editor
+	RESERVED,
 	LENGTH,
 }
 
