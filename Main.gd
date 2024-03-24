@@ -48,9 +48,8 @@ func grid_to_json(grid: PackedByteArray) -> String:
 			var cell := grid[row * SIM_WIDTH + col]
 			if cell == Simulation.CellType.AIR: continue
 			if not blocktypes.has(cell): blocktypes[cell] = []
-			blocktypes[cell].append(Vector2i(col, row))
+			blocktypes[cell].append([col, row])
 	var level := {
-		"emitter": Vector2i(int(float(SIM_WIDTH) / 2.0), int(float(SIM_HEIGHT) * 0.2)),
 		"blocks": blocktypes,
 	}
 	return JSON.stringify(level)
@@ -58,10 +57,23 @@ func grid_to_json(grid: PackedByteArray) -> String:
 func _on_hud_export_clicked():
 	var level := grid_to_json(sim.grid)
 	var dialog := $HUD/FileDialog
+	dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
 	dialog.file_selected.connect(
 		func(path: String):
 			var file := FileAccess.open(path, FileAccess.WRITE)
 			file.store_line(level)
+	)
+	dialog.popup_centered()
+
+
+
+func _on_hud_import_clicked():
+	var dialog := $HUD/FileDialog
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	dialog.file_selected.connect(
+		func(path: String):
+			var file := FileAccess.open(path, FileAccess.READ)
+			sim.load_level(JSON.parse_string(file.get_as_text()))
 	)
 	dialog.popup_centered()
 

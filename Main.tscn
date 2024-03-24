@@ -10,5 +10,6 @@ script = ExtResource("1_pp28r")
 
 [connection signal="brush_selected" from="HUD" to="." method="_on_hud_brush_selected"]
 [connection signal="export_clicked" from="HUD" to="." method="_on_hud_export_clicked"]
+[connection signal="import_clicked" from="HUD" to="." method="_on_hud_import_clicked"]
 [connection signal="start_editor" from="HUD" to="." method="_on_hud_start_editor"]
 [connection signal="start_game" from="HUD" to="." method="_on_hud_start_game"]

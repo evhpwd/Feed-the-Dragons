@@ -66,8 +66,9 @@ func load_level(level: Dictionary):
 	cell_colors[CellType.EMITTER] = null
 	grid.resize(width * height)
 	grid.fill(CellType.AIR)
-	for cell_type: CellType in level.get("blocks", {}):
-		for pos: Array in level["blocks"][cell_type]:
+	for cell_type_s in level.get("blocks", {}):
+		var cell_type: CellType = int(cell_type_s)
+		for pos: Array in level["blocks"][cell_type_s]:
 			grid[pos[1] * width + pos[0]] = cell_type
 
 func load_editor():
