@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3uirh06ya5"]
+
+[ext_resource type="Script" path="res://Main.gd" id="1_pp28r"]
+[ext_resource type="PackedScene" uid="uid://cbcq2bp6i6wxo" path="res://HUD.tscn" id="2_2dlbr"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_pp28r")
+
+[node name="HUD" parent="." instance=ExtResource("2_2dlbr")]
+
+[connection signal="brush_selected" from="HUD" to="." method="_on_hud_brush_selected"]
+[connection signal="start_editor" from="HUD" to="." method="_on_hud_start_editor"]
+[connection signal="start_game" from="HUD" to="." method="_on_hud_start_game"]

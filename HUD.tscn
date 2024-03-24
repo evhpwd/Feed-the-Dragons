@@ -1,0 +1,73 @@
+[gd_scene load_steps=6 format=3 uid="uid://cbcq2bp6i6wxo"]
+
+[ext_resource type="Script" path="res://HUD.gd" id="1_lha12"]
+[ext_resource type="Script" path="res://FPS.gd" id="2_ykhcx"]
+[ext_resource type="Script" path="res://TempScore.gd" id="3_y5137"]
+[ext_resource type="Script" path="res://SpeedSlider.gd" id="4_vah17"]
+
+[sub_resource type="GDScript" id="GDScript_4fjbo"]
+script/source = "extends OptionButton
+
+"
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_lha12")
+
+[node name="PlayButton" type="Button" parent="."]
+anchors_preset = -1
+offset_left = 15.0
+offset_top = 80.0
+offset_right = 115.0
+offset_bottom = 140.0
+text = "Play"
+
+[node name="EditorButton" type="Button" parent="."]
+offset_left = 15.0
+offset_top = 150.0
+offset_right = 115.0
+offset_bottom = 210.0
+text = "Level Editor"
+
+[node name="FPS" type="Label" parent="."]
+offset_left = 8.0
+offset_top = 4.0
+offset_right = 62.0
+offset_bottom = 27.0
+text = "FPS: 60"
+script = ExtResource("2_ykhcx")
+
+[node name="TempScore" type="Label" parent="."]
+offset_left = 506.0
+offset_top = 484.0
+offset_right = 580.0
+offset_bottom = 524.0
+text = "0"
+script = ExtResource("3_y5137")
+
+[node name="SpeedSlider" type="Node2D" parent="."]
+position = Vector2(8, 39)
+script = ExtResource("4_vah17")
+
+[node name="Label" type="Label" parent="SpeedSlider"]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Speed: 20"
+
+[node name="HSlider" type="HSlider" parent="SpeedSlider"]
+offset_top = 22.0
+offset_right = 100.0
+offset_bottom = 38.0
+min_value = 1.0
+value = 1.0
+
+[node name="BrushChoice" type="OptionButton" parent="."]
+offset_left = 15.0
+offset_top = 220.0
+offset_right = 115.0
+offset_bottom = 240.0
+script = SubResource("GDScript_4fjbo")
+
+[connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="EditorButton" to="." method="_on_editor_button_pressed"]
+[connection signal="value_changed" from="SpeedSlider/HSlider" to="SpeedSlider" method="_on_slider_change"]
+[connection signal="item_selected" from="BrushChoice" to="." method="_on_brush_choice_item_selected"]

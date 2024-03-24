@@ -3,39 +3,30 @@ class_name Simulation
 
 var grid := PackedByteArray()
 var changed := false
-const height := 200
 const width := 300
-
+const height := 200
+var emitter = null
 
 enum CellType {
 	AIR,
 	SAND,
 	GRASS,
+	COMPLETE,
 	RESERVED,
 	GOAL1,
 	GOAL2,
 	GOAL3,
+	LENGTH,
 }
 
 var counts := {CellType.GOAL1: 0, CellType.GOAL2: 0, CellType.GOAL3: 0}
+var brush_type := CellType.GRASS
 
 @onready var image := Image.create(width, height, false, Image.FORMAT_RGBAF)
 @onready var grid_sprite := $GridTex
 var gravity_dir := Vector2i.DOWN
 
 func _ready():
-	grid.resize(width * height)
-	grid.fill(CellType.AIR)
-	
-	for i in range(width * int(height / 1.2), width * height):
-		grid[i] = CellType.GRASS
-	
-	var emitter_start := height * int(float(width) / 2.0)
-	var emitter_end := height * int(float(width) / 1.5)
-	for i in range(emitter_start, emitter_end, width):
-		for n in range(i + 100, i + 135):
-			grid[n] = CellType.GOAL1
-	
 	grid_sprite.texture = ImageTexture.create_from_image(image)
 	grid_sprite.size = get_viewport().size
 	
@@ -57,9 +48,31 @@ func _process(_delta):
 					if counts[cell] < 100:
 						image.set_pixel(col, row, Color.BROWN)
 					else:
-						image.set_pixel(col, row, Color.GREEN)
+						grid[(row * width) + col] = CellType.COMPLETE
+				elif cell == CellType.COMPLETE:
+					image.set_pixel(col, row, Color.GREEN)
 		grid_sprite.texture.update(image)
 		changed = false
+
+func reset():
+	emitter = null
+	gravity_dir = Vector2i.DOWN
+	for i in counts:
+		counts[i] = 0
+
+func load_level(level: Dictionary):
+	grid.resize(width * height)
+	grid.fill(CellType.AIR)
+	emitter = level.get("emitter")
+	for block_group in level.get("blocks", []):
+		var type: CellType = block_group["type"]
+		for pos: Vector2i in block_group["positions"]:
+			grid[pos.y * width + pos.x] = type
+
+func load_editor():
+	grid.resize(width * height)
+	grid.fill(CellType.AIR)
+	changed = true
 
 ##Maps viewport coordinates (i.e. from a click) to the corresponding grid position
 func viewport_to_grid(pos: Vector2i) -> Vector2i:
@@ -73,10 +86,18 @@ func viewport_to_grid(pos: Vector2i) -> Vector2i:
 	return pos
 
 func _input(event):
+	var viewport = get_viewport()
+	var old_cell_type: CellType
+	var new_cell_type: CellType
 	if event is InputEventKey and event.is_action_pressed("swap_gravity"):
 		gravity_dir = Vector2i(0, -gravity_dir.y)
-	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		var viewport = get_viewport()
+	elif event is InputEventMouseMotion:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			old_cell_type = CellType.AIR
+			new_cell_type = brush_type
+		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+			old_cell_type = brush_type
+			new_cell_type = CellType.AIR
 		if (
 			event.position.x < 0 or event.position.y < 0 or \
 			event.position.x >= viewport.size.x or event.position.y >= viewport.size.y
@@ -87,18 +108,26 @@ func _input(event):
 		var points = bresenhams_line(last_point, event.position)
 		for position in points:
 			var mapped := viewport_to_grid(position)
-			if grid[(mapped.y * width) + mapped.x] == CellType.AIR:
-				grid[(mapped.y * width) + mapped.x] = CellType.GRASS
-	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var viewport = get_viewport()
-		if (
-			event.position.x < 0 or event.position.y < 0 or \
-			event.position.x >= viewport.size.x or event.position.y >= viewport.size.y
-		):
+			if mapped.y >= height or mapped.x >= width:
+				continue
+			if grid[(mapped.y * width) + mapped.x] == old_cell_type:
+				grid[(mapped.y * width) + mapped.x] = new_cell_type
+		changed = true
+	elif event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			old_cell_type = CellType.AIR
+			new_cell_type = brush_type
+		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			old_cell_type = brush_type
+			new_cell_type = CellType.AIR
+		else:
 			return
 		var mapped := viewport_to_grid(event.position)
-		if grid[(mapped.y * width) + mapped.x] == CellType.AIR:
-			grid[(mapped.y * width) + mapped.x] = CellType.GRASS
+		if mapped.y >= height or mapped.x >= width:
+			return
+		if grid[(mapped.y * width) + mapped.x] == old_cell_type:
+			grid[(mapped.y * width) + mapped.x] = new_cell_type
+			changed = true
 
 func bresenhams_line(point1: Vector2i, point2: Vector2i) -> Array[Vector2i]:
 	var points: Array[Vector2i] = []
@@ -124,8 +153,8 @@ func bresenhams_line(point1: Vector2i, point2: Vector2i) -> Array[Vector2i]:
 
 func _physics_process(_delta):
 	changed = true
-	grid[int(width * 80.5) + randi() % 100] = 1
-	grid[width * int(float(height) / 2.0) + 30] = 1
+	if emitter != null:
+		grid[emitter.y * width + emitter.x] = 1
 
 	var new_grid := PackedByteArray()
 	new_grid.resize(width * height)
@@ -135,7 +164,6 @@ func _physics_process(_delta):
 		for col in range(width):
 			var cell = grid[(row * width) + col]
 			if cell == CellType.SAND:
-
 				if not move_cell(row, col, new_grid):
 					new_grid[(row * width) + col] = CellType.SAND
 
@@ -143,10 +171,14 @@ func _physics_process(_delta):
 				new_grid[(row * width) + col] = CellType.GRASS
 			elif cell == CellType.GOAL1:
 				new_grid[(row * width) + col] = CellType.GOAL1
+			elif cell == CellType.COMPLETE:
+				new_grid[(row * width) + col] = CellType.COMPLETE
 
 	grid = new_grid
 
 func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
+	# 'Fall off' top and bottom of screen
+	if (row + gravity_dir.y) < 0 or row + gravity_dir.y >= height: return true
 	var current := (row * width) + col
 	assert(grid[current] == CellType.SAND)
 	var below := ((row + gravity_dir.y) * width) + col
@@ -155,8 +187,6 @@ func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
 	if can_move(Vector2i(col, row), gravity_dir):
 		if handle_movement(new_grid, current, next_cell): return true
 
-	if row + 1 >= height:
-		return false
 	if col + 1 >= width or col - 1 < 0:
 		return false
 
