@@ -61,11 +61,10 @@ func reset():
 func load_level(level: Dictionary):
 	grid.resize(width * height)
 	grid.fill(CellType.AIR)
-	emitter = level.get("emitter")
-	for block_group in level.get("blocks", []):
-		var type: CellType = block_group["type"]
-		for pos: Vector2i in block_group["positions"]:
-			grid[pos.y * width + pos.x] = type
+	# emitter = level.get("emitter")
+	for cell_type: CellType in level.get("blocks", {}):
+		for pos: Array in level["blocks"][cell_type]:
+			grid[pos[1] * width + pos[0]] = cell_type
 
 func load_editor():
 	grid.resize(width * height)

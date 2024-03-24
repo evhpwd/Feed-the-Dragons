@@ -9,13 +9,10 @@ var added := false
 
 const LEVELS := [
 	{
-		"emitter": Vector2i(int(float(SIM_WIDTH) / 2.0), int(float(SIM_HEIGHT) * 0.2)),
-		"blocks": [
-			{
-				"type": Simulation.CellType.GOAL1,
-				"positions": [Vector2i(180, 100), Vector2i(181, 100), Vector2i(182, 100), Vector2i(183, 100)]
-			}
-		]
+		"emitter": [int(float(SIM_WIDTH) / 2.0), int(float(SIM_HEIGHT) * 0.2)],
+		"blocks": {
+			Simulation.CellType.GOAL1: [[180, 100], [181, 100], [182, 100], [183, 100]],
+		}
 	}
 ]
 const LEVEL := 0
