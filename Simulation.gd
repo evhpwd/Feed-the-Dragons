@@ -14,6 +14,7 @@ enum CellType {
 	GOAL1,
 	GOAL2,
 	GOAL3,
+	EMITTER,
 	# Cells below this point aren't available in level editor
 	RESERVED,
 	LENGTH,
@@ -25,26 +26,31 @@ var brush_type := CellType.GRASS
 @onready var image := Image.create(width, height, false, Image.FORMAT_RGBAF)
 @onready var grid_sprite := $GridTex
 var gravity_dir := Vector2i.DOWN
+var cell_colors: Array[Color]
 
 func _ready():
+	cell_colors.resize(CellType.LENGTH)
+	cell_colors[CellType.SAND] = Color.SANDY_BROWN
+	cell_colors[CellType.GRASS] = Color.SEA_GREEN
+	cell_colors[CellType.AIR] = Color.SKY_BLUE
+	cell_colors[CellType.EMITTER] = cell_colors[CellType.AIR]
+
 	grid_sprite.texture = ImageTexture.create_from_image(image)
 	grid_sprite.size = get_viewport().size
 	
 	# Poll mouse more frequently for smoother lines
 	Input.use_accumulated_input = false
 
+
 func _process(_delta):
 	if changed:
 		for row in range(0, height):
 			for col in range(0, width):
-				var cell = grid[(row * width) + col]
-				if cell == CellType.SAND:
-					image.set_pixel(col, row, Color.SANDY_BROWN)
-				elif cell == CellType.GRASS:
-					image.set_pixel(col, row, Color.SEA_GREEN)
-				elif cell == CellType.AIR:
-					image.set_pixel(col, row, Color.SKY_BLUE)
-				elif cell >= CellType.GOAL1:
+				var cell := grid[(row * width) + col]
+				var color := cell_colors[cell]
+				if color != null:
+					image.set_pixel(col, row, color)
+				elif cell >= CellType.GOAL1 && cell <= CellType.GOAL3:
 					if counts[cell] < 100:
 						image.set_pixel(col, row, Color.BROWN)
 					else:
@@ -159,15 +165,15 @@ func _physics_process(_delta):
 
 	for row in range(height):
 		for col in range(width):
-			var cell := grid[(row * width) + col]
+			var pos := (row * width) + col
+			var cell := grid[pos]
 			if cell == CellType.SAND:
 				if not move_cell(row, col, new_grid):
-					new_grid[(row * width) + col] = CellType.SAND
+					new_grid[pos] = CellType.SAND
 			elif cell == CellType.GRASS:
-				new_grid[(row * width) + col] = CellType.GRASS
-			elif cell == CellType.GOAL1:
-				new_grid[(row * width) + col] = CellType.GOAL1
-
+				new_grid[pos] = cell
+			elif cell >= CellType.GOAL1 and cell <= CellType.GOAL3:
+				new_grid[pos] = cell
 	grid = new_grid
 
 func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
@@ -197,7 +203,7 @@ func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
 func handle_movement(new_grid: PackedByteArray, current: int, next_cell: int) -> bool:
 	assert(grid[current] == CellType.SAND, "moving non-sand")
 	var next_cell_content := grid[next_cell]
-	if next_cell_content >= CellType.GOAL1 and next_cell_content <= CellType.GOAL3:
+	if next_cell_content >= CellType.GOAL1 && next_cell_content <= CellType.GOAL3:
 		assert(!counts[next_cell_content] >= 100, "moving into filled goal")
 		counts[next_cell_content] += 1
 		new_grid[current] = CellType.AIR
@@ -219,19 +225,22 @@ func handle_movement(new_grid: PackedByteArray, current: int, next_cell: int) ->
 func can_move(from: Vector2i, dir: Vector2i) -> bool:
 	var new_pos := from + dir
 	var new_pos_content := grid[new_pos.y * width + new_pos.x]
-	if new_pos_content != CellType.AIR and not is_unfilled_goal(new_pos_content): 
+	if new_pos_content != CellType.AIR and not \
+	 (
+		new_pos_content >= CellType.GOAL1 &&
+		new_pos_content <= CellType.GOAL3 &&
+		counts[new_pos_content] < 100
+	): 
 		return false
 	if dir == gravity_dir: return true
 	if dir == Vector2i(1, gravity_dir.y) or dir == Vector2i(-1, gravity_dir.y):
 		var adjacent_content := grid[from.y * width + from.x + dir.x]
 		if adjacent_content == CellType.AIR or \
 			adjacent_content == CellType.SAND or \
-			is_unfilled_goal(adjacent_content): 
+			(
+				new_pos_content >= CellType.GOAL1 &&
+				new_pos_content <= CellType.GOAL3 &&
+				counts[new_pos_content] < 100
+			): 
 			return true
 	return false
-
-func is_goal(cell: CellType) -> bool:
-	return cell >= CellType.GOAL1 && cell <= CellType.GOAL3
-
-func is_unfilled_goal(cell: CellType) -> bool:
-	return is_goal(cell) && counts[cell] < 100
