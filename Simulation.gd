@@ -101,6 +101,8 @@ func _input(event):
 		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 			old_cell_type = brush_type
 			new_cell_type = CellType.AIR
+		else:
+			return
 		if (
 			event.position.x < 0 or event.position.y < 0 or \
 			event.position.x >= viewport.size.x or event.position.y >= viewport.size.y
