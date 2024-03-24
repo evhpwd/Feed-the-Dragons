@@ -5,7 +5,6 @@ var grid := PackedByteArray()
 var changed := false
 const width := 300
 const height := 200
-var emitter = null
 
 enum CellType {
 	AIR,
@@ -58,7 +57,6 @@ func _process(_delta):
 		changed = false
 
 func reset():
-	emitter = null
 	gravity_dir = Vector2i.DOWN
 	for i in counts:
 		counts[i] = 0
@@ -68,7 +66,6 @@ func load_level(level: Dictionary):
 	cell_colors[CellType.EMITTER] = null
 	grid.resize(width * height)
 	grid.fill(CellType.AIR)
-	# emitter = level.get("emitter")
 	for cell_type: CellType in level.get("blocks", {}):
 		for pos: Array in level["blocks"][cell_type]:
 			grid[pos[1] * width + pos[0]] = cell_type
@@ -161,9 +158,6 @@ func bresenhams_line(point1: Vector2i, point2: Vector2i) -> Array[Vector2i]:
 
 func _physics_process(_delta):
 	changed = true
-	if emitter != null:
-		grid[emitter.y * width + emitter.x] = 1
-
 	var new_grid := PackedByteArray()
 	new_grid.resize(width * height)
 	new_grid.fill(CellType.AIR)
