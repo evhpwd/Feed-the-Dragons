@@ -28,8 +28,6 @@ func _on_hud_start_editor():
 		add_child(sim)
 		added = true
 	for cell in range(0, Simulation.CellType.LENGTH):
-		if cell >= Simulation.CellType.RESERVED or cell == Simulation.CellType.AIR:
-			continue
 		$HUD/BrushChoice.add_item(Simulation.CellType.keys()[cell], int(cell))
 
 func _on_hud_brush_selected(index):

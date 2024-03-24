@@ -33,7 +33,6 @@ func _ready():
 	cell_colors[CellType.SAND] = Color.SANDY_BROWN
 	cell_colors[CellType.GRASS] = Color.SEA_GREEN
 	cell_colors[CellType.AIR] = Color.SKY_BLUE
-	cell_colors[CellType.EMITTER] = cell_colors[CellType.AIR]
 
 	grid_sprite.texture = ImageTexture.create_from_image(image)
 	grid_sprite.size = get_viewport().size
@@ -65,6 +64,8 @@ func reset():
 		counts[i] = 0
 
 func load_level(level: Dictionary):
+	cell_colors.resize(CellType.LENGTH)
+	cell_colors[CellType.EMITTER] = null
 	grid.resize(width * height)
 	grid.fill(CellType.AIR)
 	# emitter = level.get("emitter")
@@ -73,6 +74,8 @@ func load_level(level: Dictionary):
 			grid[pos[1] * width + pos[0]] = cell_type
 
 func load_editor():
+	cell_colors.resize(CellType.LENGTH)
+	cell_colors[CellType.EMITTER] = Color.DEEP_PINK
 	grid.resize(width * height)
 	grid.fill(CellType.AIR)
 	changed = true
@@ -176,6 +179,11 @@ func _physics_process(_delta):
 				new_grid[pos] = cell
 			elif cell >= CellType.GOAL1 and cell <= CellType.GOAL3:
 				new_grid[pos] = cell
+			elif cell == CellType.EMITTER:
+				new_grid[pos] = cell
+				if new_grid[pos + width] == CellType.AIR:
+					new_grid[pos + width] = CellType.SAND
+				
 	grid = new_grid
 
 func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
