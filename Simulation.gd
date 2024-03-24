@@ -11,7 +11,6 @@ enum CellType {
 	AIR,
 	SAND,
 	GRASS,
-	COMPLETE,
 	RESERVED,
 	GOAL1,
 	GOAL2,
@@ -48,9 +47,7 @@ func _process(_delta):
 					if counts[cell] < 100:
 						image.set_pixel(col, row, Color.BROWN)
 					else:
-						grid[(row * width) + col] = CellType.COMPLETE
-				elif cell == CellType.COMPLETE:
-					image.set_pixel(col, row, Color.GREEN)
+						image.set_pixel(col, row, Color.GREEN)
 		grid_sprite.texture.update(image)
 		changed = false
 
@@ -162,17 +159,14 @@ func _physics_process(_delta):
 
 	for row in range(height):
 		for col in range(width):
-			var cell = grid[(row * width) + col]
+			var cell := grid[(row * width) + col]
 			if cell == CellType.SAND:
 				if not move_cell(row, col, new_grid):
 					new_grid[(row * width) + col] = CellType.SAND
-
 			elif cell == CellType.GRASS:
 				new_grid[(row * width) + col] = CellType.GRASS
 			elif cell == CellType.GOAL1:
 				new_grid[(row * width) + col] = CellType.GOAL1
-			elif cell == CellType.COMPLETE:
-				new_grid[(row * width) + col] = CellType.COMPLETE
 
 	grid = new_grid
 
@@ -201,14 +195,14 @@ func move_cell(row: int, col: int, new_grid: PackedByteArray) -> bool:
 	return false
 
 func handle_movement(new_grid: PackedByteArray, current: int, next_cell: int) -> bool:
-	assert(grid[current] == CellType.SAND, "sand????????")
-	if grid[next_cell] >= CellType.GOAL1:
-		counts[grid[next_cell]] += 1
-		counts[grid[next_cell]] = clamp(counts[grid[next_cell]], 0, 100)
-		#print(counts[grid[next_cell]])
+	assert(grid[current] == CellType.SAND, "moving non-sand")
+	var next_cell_content := grid[next_cell]
+	if next_cell_content >= CellType.GOAL1 and next_cell_content <= CellType.GOAL3:
+		assert(!counts[next_cell_content] >= 100, "moving into filled goal")
+		counts[next_cell_content] += 1
 		new_grid[current] = CellType.AIR
 		return true
-	elif grid[next_cell] == CellType.AIR:
+	elif next_cell_content == CellType.AIR:
 		grid[next_cell] = CellType.RESERVED
 		new_grid[next_cell] = grid[current]
 		return true
@@ -224,13 +218,20 @@ func handle_movement(new_grid: PackedByteArray, current: int, next_cell: int) ->
 #   - Increment count
 func can_move(from: Vector2i, dir: Vector2i) -> bool:
 	var new_pos := from + dir
-	if grid[new_pos.y * width + new_pos.x] != CellType.AIR and \
-	   grid[new_pos.y * width + new_pos.x] < CellType.GOAL1: 
+	var new_pos_content := grid[new_pos.y * width + new_pos.x]
+	if new_pos_content != CellType.AIR and not is_unfilled_goal(new_pos_content): 
 		return false
 	if dir == gravity_dir: return true
 	if dir == Vector2i(1, gravity_dir.y) or dir == Vector2i(-1, gravity_dir.y):
-		if grid[from.y * width + from.x + dir.x] == CellType.AIR or \
-		   grid[from.y * width + from.x + dir.x] >= CellType.GOAL1: 
+		var adjacent_content := grid[from.y * width + from.x + dir.x]
+		if adjacent_content == CellType.AIR or \
+			adjacent_content == CellType.SAND or \
+			is_unfilled_goal(adjacent_content): 
 			return true
-		if grid[(from.y + gravity_dir.y) * width + from.x] == CellType.SAND: return true
 	return false
+
+func is_goal(cell: CellType) -> bool:
+	return cell >= CellType.GOAL1 && cell <= CellType.GOAL3
+
+func is_unfilled_goal(cell: CellType) -> bool:
+	return is_goal(cell) && counts[cell] < 100
