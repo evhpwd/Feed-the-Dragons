@@ -56,5 +56,12 @@ func grid_to_json(grid: PackedByteArray) -> String:
 	return JSON.stringify(level)
 
 func _on_hud_export_clicked():
-	var file := FileAccess.open("user://level.json", FileAccess.WRITE)
-	file.store_line(grid_to_json(sim.grid))
+	var level := grid_to_json(sim.grid)
+	var dialog := $HUD/FileDialog
+	dialog.file_selected.connect(
+		func(path: String):
+			var file := FileAccess.open(path, FileAccess.WRITE)
+			file.store_line(level)
+	)
+	dialog.popup_centered()
+
