@@ -39,6 +39,7 @@ mouse_default_cursor_shape = 2
 theme = ExtResource("2_xl4tg")
 
 [node name="MenuButton" type="Button" parent="."]
+visible = false
 offset_left = 15.0
 offset_top = 90.0
 offset_right = 115.0
@@ -57,12 +58,24 @@ text = "Next Level >"
 [node name="ResetButton" type="Button" parent="."]
 visible = false
 offset_left = 15.0
-offset_top = 150.0
+offset_top = 30.0
 offset_right = 66.0
-offset_bottom = 200.0
+offset_bottom = 80.0
+mouse_default_cursor_shape = 2
 text = "Reset"
 
+[node name="SimulateButton" type="Button" parent="."]
+visible = false
+offset_left = 15.0
+offset_top = 280.0
+offset_right = 115.0
+offset_bottom = 330.0
+mouse_default_cursor_shape = 2
+button_mask = 3
+text = "Play/Pause"
+
 [node name="FPS" type="Label" parent="."]
+visible = false
 offset_left = 8.0
 offset_top = 4.0
 offset_right = 62.0
@@ -71,6 +84,7 @@ text = "FPS: 60"
 script = ExtResource("2_ykhcx")
 
 [node name="SpeedSlider" type="Node2D" parent="."]
+visible = false
 position = Vector2(8, 39)
 script = ExtResource("4_vah17")
 
@@ -87,6 +101,7 @@ min_value = 1.0
 value = 1.0
 
 [node name="BrushChoice" type="OptionButton" parent="."]
+visible = false
 offset_left = 15.0
 offset_top = 150.0
 offset_right = 115.0
@@ -95,6 +110,7 @@ button_mask = 3
 script = SubResource("GDScript_4fjbo")
 
 [node name="ExportButton" type="Button" parent="."]
+visible = false
 offset_left = 15.0
 offset_top = 200.0
 offset_right = 115.0
@@ -102,15 +118,17 @@ offset_bottom = 231.0
 button_mask = 3
 text = "Export"
 
-[node name="FileDialog" type="FileDialog" parent="."]
-title = "Save Level"
+[node name="ImportDialog" type="FileDialog" parent="."]
+title = "Open a File"
 size = Vector2i(454, 159)
-ok_button_text = "Save"
+ok_button_text = "Open"
+file_mode = 0
 access = 2
 filters = PackedStringArray("*.json; JSON Files")
 use_native_dialog = true
 
 [node name="ImportButton" type="Button" parent="."]
+visible = false
 offset_left = 15.0
 offset_top = 240.0
 offset_right = 115.0
@@ -130,11 +148,45 @@ button_mask = 3
 text = "^
 v"
 
+[node name="CountLabel1" type="Label" parent="."]
+visible = false
+offset_left = 506.0
+offset_top = 484.0
+offset_right = 580.0
+offset_bottom = 524.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "0"
+
+[node name="CountLabel2" type="Label" parent="."]
+visible = false
+offset_left = 506.0
+offset_top = 484.0
+offset_right = 546.0
+offset_bottom = 507.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "0"
+
+[node name="CountLabel3" type="Label" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "0"
+
+[node name="ExportDialog" type="FileDialog" parent="."]
+title = "Save Level"
+size = Vector2i(454, 159)
+ok_button_text = "Save"
+access = 2
+filters = PackedStringArray("*.json; JSON Files")
+use_native_dialog = true
+
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="EditorButton" to="." method="_on_editor_button_pressed"]
 [connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]
 [connection signal="pressed" from="NextLevelButton" to="." method="_on_next_level_button_pressed"]
 [connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
+[connection signal="pressed" from="SimulateButton" to="." method="_on_simulate_button_pressed"]
 [connection signal="value_changed" from="SpeedSlider/HSlider" to="SpeedSlider" method="_on_slider_change"]
 [connection signal="item_selected" from="BrushChoice" to="." method="_on_brush_choice_item_selected"]
 [connection signal="pressed" from="ExportButton" to="." method="_on_export_button_pressed"]

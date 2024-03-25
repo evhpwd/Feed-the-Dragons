@@ -8,6 +8,10 @@ script = ExtResource("1_pp28r")
 
 [node name="HUD" parent="." instance=ExtResource("2_2dlbr")]
 
+[node name="WaitTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
 [connection signal="brush_selected" from="HUD" to="." method="_on_hud_brush_selected"]
 [connection signal="export_clicked" from="HUD" to="." method="_on_hud_export_clicked"]
 [connection signal="import_clicked" from="HUD" to="." method="_on_hud_import_clicked"]
@@ -17,3 +21,5 @@ script = ExtResource("1_pp28r")
 [connection signal="reset_level_moment" from="HUD" to="." method="_on_hud_reset_level_moment"]
 [connection signal="start_editor" from="HUD" to="." method="_on_hud_start_editor"]
 [connection signal="swap_gravity" from="HUD" to="." method="_on_hud_swap_gravity"]
+[connection signal="toggle_sim_moment" from="HUD" to="." method="_on_hud_toggle_sim_moment"]
+[connection signal="timeout" from="WaitTimer" to="." method="_on_timer_timeout"]

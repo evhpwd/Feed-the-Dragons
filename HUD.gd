@@ -9,6 +9,7 @@ signal export_clicked
 signal import_clicked
 signal next_level_moment
 signal reset_level_moment
+signal toggle_sim_moment
 
 func _ready():
 	pass
@@ -42,3 +43,6 @@ func _on_next_level_button_pressed():
 
 func _on_reset_button_pressed():
 	reset_level_moment.emit()
+
+func _on_simulate_button_pressed():
+	toggle_sim_moment.emit()

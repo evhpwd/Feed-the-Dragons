@@ -9,5 +9,5 @@ g_up = change default gravity to up
 g_right = default gravity to right [broken rn]
 g_left = u get the idea [broken rn]
 enable_g_swapping = allow pressing 'g' to swap gravity
-disable_simulation = stop simulating particles
+disable_simulation = stop simulating particles (erm)
 disable_input = disable input !?!?!?

@@ -8,25 +8,3 @@ script = ExtResource("1_m3n8q")
 [node name="GridTex" type="TextureRect" parent="."]
 offset_right = 40.0
 offset_bottom = 40.0
-
-[node name="CountLabel1" type="Label" parent="."]
-visible = false
-offset_left = 506.0
-offset_top = 484.0
-offset_right = 580.0
-offset_bottom = 524.0
-text = "0"
-
-[node name="CountLabel2" type="Label" parent="."]
-visible = false
-offset_left = 506.0
-offset_top = 484.0
-offset_right = 546.0
-offset_bottom = 507.0
-text = "0"
-
-[node name="CountLabel3" type="Label" parent="."]
-visible = false
-offset_right = 40.0
-offset_bottom = 23.0
-text = "0"
