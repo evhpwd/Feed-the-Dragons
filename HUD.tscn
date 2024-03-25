@@ -182,6 +182,7 @@ filters = PackedStringArray("*.json; JSON Files")
 use_native_dialog = true
 
 [node name="LevelDialog" type="Label" parent="."]
+visible = false
 offset_left = 150.0
 offset_top = 250.0
 offset_right = 450.0
@@ -191,6 +192,20 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 0
 theme_override_constants/shadow_outline_size = 3
+
+[node name="WinDialog" type="Label" parent="."]
+visible = false
+offset_left = 463.0
+offset_top = 387.0
+offset_right = 765.0
+offset_bottom = 410.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_constants/outline_size = 0
+theme_override_constants/shadow_outline_size = 3
+text = "Well done for feeding all the dragons!"
+horizontal_alignment = 1
 
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="EditorButton" to="." method="_on_editor_button_pressed"]

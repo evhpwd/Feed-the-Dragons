@@ -55,6 +55,7 @@ func switch_to_menu():
 	$HUD/CountLabel3.hide()
 	$HUD/SpeedSlider.hide()
 	$HUD/FPS.hide()
+	$HUD/WinDialog.hide()
 	if not added:
 		add_child(sim)
 		added = true
@@ -77,6 +78,7 @@ func switch_to_editor():
 	$HUD/CountLabel3.hide()
 	$HUD/SpeedSlider.show()
 	$HUD/FPS.show()
+	$HUD/WinDialog.hide()
 	if not added:
 		add_child(sim)
 		added = true
@@ -111,6 +113,8 @@ func switch_to_play(level: Dictionary, dialog: String):
 	if "dialog" in coords:
 		var pos = coords.dialog
 		dialog_box.position = Vector2(pos[0], pos[1])
+	else:
+		dialog_box.position = Vector2(150, 250)
 	dialog_box.show()
 	$HUD/PlayButton.hide()
 	$HUD/EditorButton.hide()
@@ -122,6 +126,7 @@ func switch_to_play(level: Dictionary, dialog: String):
 	$HUD/ImportButton.hide()
 	$HUD/SpeedSlider.hide()
 	$HUD/FPS.hide()
+	$HUD/WinDialog.hide()
 	if sim.can_swap_gravity:
 		$HUD/SwapGravityButton.show()
 	else:
@@ -194,6 +199,8 @@ func _on_hud_toggle_sim_moment():
 func _on_simulation_all_goals_complete():
 	if current_level < levels.size() - 1:
 		$HUD/NextLevelButton.show()
+	else:
+		$HUD/WinDialog.show()
 
 func _on_simulation_counter_changed(counter: int, count: int):
 	if counter == 0:
@@ -204,8 +211,11 @@ func _on_simulation_counter_changed(counter: int, count: int):
 		$HUD/CountLabel3.text = "%d" % count
 
 func _on_simulation_skip_level():
-	current_level += 1
-	switch_to_play(levels[current_level], level_dialog[current_level])
+	if current_level + 1 >= levels.size():
+		_on_simulation_all_goals_complete()
+	else:
+		current_level += 1
+		switch_to_play(levels[current_level], level_dialog[current_level])
 
 # TIMER THIGNY
 func _on_timer_timeout():
