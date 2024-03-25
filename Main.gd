@@ -21,6 +21,7 @@ func _ready():
 	sim.all_goals_complete.connect(_on_simulation_all_goals_complete)
 	sim.counter_changed.connect(_on_simulation_counter_changed)
 	sim.skip_level.connect(_on_simulation_skip_level)
+	sim.drawing_complete.connect(_hide_dialog)
 	switch_to_menu()
 
 func grid_to_viewport(pos: Vector2i) -> Vector2i:
@@ -37,7 +38,6 @@ func grid_to_viewport(pos: Vector2i) -> Vector2i:
 func switch_to_menu():
 	$WaitTimer.start()
 	sim.reset()
-	sim.drawing_complete.connect(_hide_dialog)
 	sim.load_level(preload("res://Levels/menu.json").data)
 	sim.simulating = false
 	sim.can_input = false
