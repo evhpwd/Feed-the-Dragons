@@ -3,6 +3,7 @@ class_name Simulation
 signal all_goals_complete
 signal counter_changed(counter, count)
 signal skip_level
+signal drawing_complete
 
 var grid := PackedByteArray()
 var cell_colors: Array
@@ -107,7 +108,7 @@ func load_level(level: Dictionary):
 	grid.fill(CellType.AIR)
 
 	for cell_type_s in level.get("blocks", {}):
-		var cell_type: CellType = int(cell_type_s)
+		var cell_type: CellType = int(cell_type_s) as CellType
 		for pos: Array in level["blocks"][cell_type_s]:
 			grid[pos[1] * width + pos[0]] = cell_type
 	
@@ -177,6 +178,7 @@ func _input(event):
 			if grid[(mapped.y * width) + mapped.x] == old_cell_type:
 				grid[(mapped.y * width) + mapped.x] = new_cell_type
 		changed = true
+		drawing_complete.emit()
 	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			old_cell_type = CellType.AIR
@@ -192,6 +194,7 @@ func _input(event):
 		if grid[(mapped.y * width) + mapped.x] == old_cell_type:
 			grid[(mapped.y * width) + mapped.x] = new_cell_type
 			changed = true
+		drawing_complete.emit()
 
 func bresenhams_line(point1: Vector2i, point2: Vector2i) -> Array[Vector2i]:
 	var points: Array[Vector2i] = []

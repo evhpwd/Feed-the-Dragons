@@ -9,6 +9,12 @@ var added := false
 var editor_run := false
 var current_level := 0
 var levels := [preload("res://Levels/level.json").data, preload("res://Levels/level2.json").data, preload("res://Levels/level3.json").data, preload("res://Levels/level4.json").data]
+const level_dialog: Array[String] = [
+	"This dragon looks hungry! Draw a line with your mouth so the food can get to its mouth. Use right click to erase the line",
+	"Looks like someone flipped gravity! Use the G button or click the gravity button on the side to flip gravity and feed these dragons",
+	"One dragon has started getting thirsty from all this sand they ate. Give them a drink of water - the other dragon still wants food!",
+	"appy everyfing uve wearned :3",
+]
 const LEVEL := 0
 
 func _ready():
@@ -31,6 +37,7 @@ func grid_to_viewport(pos: Vector2i) -> Vector2i:
 func switch_to_menu():
 	$WaitTimer.start()
 	sim.reset()
+	sim.drawing_complete.connect(_hide_dialog)
 	sim.load_level(preload("res://Levels/menu.json").data)
 	sim.simulating = false
 	sim.can_input = false
@@ -78,12 +85,12 @@ func switch_to_editor():
 			$HUD/BrushChoice.add_item(Simulation.CellType.keys()[cell], int(cell))
 		editor_run = true
 
-func switch_to_play(level: Dictionary):
+func switch_to_play(level: Dictionary, dialog: String):
 	$WaitTimer.start()
 	sim.reset()
 	sim.load_level(level)
 	sim.simulating = false
-	
+
 	var goals = level.get("goals")
 	var coords = level.get("ui_coords")
 	if goals.size() >= 1:
@@ -99,6 +106,12 @@ func switch_to_play(level: Dictionary):
 		$HUD/CountLabel3.position = grid_to_viewport(Vector2i(coords["counter3"][0], coords["counter3"][1]))
 		$HUD/CountLabel3.show()
 	
+	var dialog_box := $HUD/LevelDialog
+	dialog_box.set_text(dialog)
+	if "dialog" in coords:
+		var pos = coords.dialog
+		dialog_box.position = Vector2(pos[0], pos[1])
+	dialog_box.show()
 	$HUD/PlayButton.hide()
 	$HUD/EditorButton.hide()
 	$HUD/MenuButton.show()
@@ -122,7 +135,7 @@ func _on_hud_start_editor():
 	switch_to_editor()
 
 func _on_hud_play_game():
-	switch_to_play(levels[0])
+	switch_to_play(levels[0], level_dialog[0])
 
 func _on_hud_menu_moment():
 	switch_to_menu()
@@ -152,7 +165,6 @@ func _on_hud_export_clicked():
 			file.store_line(level)
 	)
 	dialog.popup_centered()
-	#dialog.file_selected.disconnect()
 
 func _on_hud_import_clicked():
 	var dialog := $HUD/ImportDialog
@@ -162,14 +174,13 @@ func _on_hud_import_clicked():
 			sim.load_level(JSON.parse_string(file.get_as_text()))
 	)
 	dialog.popup_centered()
-	#dialog.file_selected.disconnect()
 
 func _on_hud_swap_gravity():
 	sim.gravity_dir *= -1
 
 func _on_hud_next_level_moment():
 	current_level += 1
-	switch_to_play(levels[current_level])
+	switch_to_play(levels[current_level], level_dialog[current_level])
 	$HUD/NextLevelButton.hide()
 
 func _on_hud_reset_level_moment():
@@ -194,9 +205,11 @@ func _on_simulation_counter_changed(counter: int, count: int):
 
 func _on_simulation_skip_level():
 	current_level += 1
-	switch_to_play(levels[current_level])
+	switch_to_play(levels[current_level], level_dialog[current_level])
 
 # TIMER THIGNY
 func _on_timer_timeout():
 	sim.simulating = true
 
+func _hide_dialog():
+	$HUD/LevelDialog.hide()
