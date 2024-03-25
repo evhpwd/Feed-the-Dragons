@@ -1,0 +1,26 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://b8uwq0p0cd4kp"]
+
+[ext_resource type="StyleBox" uid="uid://ccbn8srxntept" path="res://green_button.tres" id="1_ryqs6"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_x3jrr"]
+bg_color = Color(0.313726, 0.666667, 0.313726, 0.196078)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.313726, 0.666667, 0.313726, 0.352941)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u3v54"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[resource]
+Button/styles/focus = ExtResource("1_ryqs6")
+Button/styles/hover = SubResource("StyleBoxFlat_x3jrr")
+Button/styles/normal = SubResource("StyleBoxFlat_u3v54")
+Button/styles/pressed = ExtResource("1_ryqs6")

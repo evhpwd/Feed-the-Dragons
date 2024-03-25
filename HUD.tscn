@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://cbcq2bp6i6wxo"]
 
 [ext_resource type="Script" path="res://HUD.gd" id="1_lha12"]
+[ext_resource type="Theme" uid="uid://b8uwq0p0cd4kp" path="res://button_theme.tres" id="2_xl4tg"]
 [ext_resource type="Script" path="res://FPS.gd" id="2_ykhcx"]
-[ext_resource type="Script" path="res://TempScore.gd" id="3_y5137"]
 [ext_resource type="Script" path="res://SpeedSlider.gd" id="4_vah17"]
 
 [sub_resource type="GDScript" id="GDScript_4fjbo"]
@@ -12,20 +12,55 @@ script/source = "extends OptionButton
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_lha12")
+metadata/_edit_vertical_guides_ = [600.0]
 
 [node name="PlayButton" type="Button" parent="."]
-offset_left = 15.0
-offset_top = 80.0
-offset_right = 115.0
-offset_bottom = 140.0
-text = "Play"
+offset_left = 300.0
+offset_top = 560.0
+offset_right = 500.0
+offset_bottom = 680.0
+mouse_default_cursor_shape = 2
+theme = ExtResource("2_xl4tg")
+button_mask = 3
 
 [node name="EditorButton" type="Button" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 100.0
+offset_top = 160.0
+offset_right = 300.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_default_cursor_shape = 2
+theme = ExtResource("2_xl4tg")
+
+[node name="MenuButton" type="Button" parent="."]
+offset_left = 15.0
+offset_top = 90.0
+offset_right = 115.0
+offset_bottom = 140.0
+mouse_default_cursor_shape = 2
+text = "Main Menu"
+
+[node name="NextLevelButton" type="Button" parent="."]
+visible = false
+offset_left = 1000.0
+offset_top = 650.0
+offset_right = 1103.0
+offset_bottom = 700.0
+text = "Next Level >"
+
+[node name="ResetButton" type="Button" parent="."]
+visible = false
 offset_left = 15.0
 offset_top = 150.0
-offset_right = 115.0
-offset_bottom = 210.0
-text = "Level Editor"
+offset_right = 66.0
+offset_bottom = 200.0
+text = "Reset"
 
 [node name="FPS" type="Label" parent="."]
 offset_left = 8.0
@@ -34,14 +69,6 @@ offset_right = 62.0
 offset_bottom = 27.0
 text = "FPS: 60"
 script = ExtResource("2_ykhcx")
-
-[node name="TempScore" type="Label" parent="."]
-offset_left = 506.0
-offset_top = 484.0
-offset_right = 580.0
-offset_bottom = 524.0
-text = "0"
-script = ExtResource("3_y5137")
 
 [node name="SpeedSlider" type="Node2D" parent="."]
 position = Vector2(8, 39)
@@ -61,16 +88,18 @@ value = 1.0
 
 [node name="BrushChoice" type="OptionButton" parent="."]
 offset_left = 15.0
-offset_top = 220.0
+offset_top = 150.0
 offset_right = 115.0
-offset_bottom = 240.0
+offset_bottom = 170.0
+button_mask = 3
 script = SubResource("GDScript_4fjbo")
 
 [node name="ExportButton" type="Button" parent="."]
 offset_left = 15.0
-offset_top = 280.0
+offset_top = 200.0
 offset_right = 115.0
-offset_bottom = 311.0
+offset_bottom = 231.0
+button_mask = 3
 text = "Export"
 
 [node name="FileDialog" type="FileDialog" parent="."]
@@ -83,14 +112,31 @@ use_native_dialog = true
 
 [node name="ImportButton" type="Button" parent="."]
 offset_left = 15.0
-offset_top = 320.0
+offset_top = 240.0
 offset_right = 115.0
-offset_bottom = 351.0
+offset_bottom = 271.0
+mouse_default_cursor_shape = 2
+button_mask = 3
 text = "Import"
+
+[node name="SwapGravityButton" type="Button" parent="."]
+visible = false
+offset_left = 1140.0
+offset_top = 350.0
+offset_right = 1190.0
+offset_bottom = 400.0
+mouse_default_cursor_shape = 2
+button_mask = 3
+text = "^
+v"
 
 [connection signal="pressed" from="PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="EditorButton" to="." method="_on_editor_button_pressed"]
+[connection signal="pressed" from="MenuButton" to="." method="_on_menu_button_pressed"]
+[connection signal="pressed" from="NextLevelButton" to="." method="_on_next_level_button_pressed"]
+[connection signal="pressed" from="ResetButton" to="." method="_on_reset_button_pressed"]
 [connection signal="value_changed" from="SpeedSlider/HSlider" to="SpeedSlider" method="_on_slider_change"]
 [connection signal="item_selected" from="BrushChoice" to="." method="_on_brush_choice_item_selected"]
 [connection signal="pressed" from="ExportButton" to="." method="_on_export_button_pressed"]
 [connection signal="pressed" from="ImportButton" to="." method="_on_import_button_pressed"]
+[connection signal="pressed" from="SwapGravityButton" to="." method="_on_swap_gravity_button_pressed"]
