@@ -10,7 +10,7 @@ var editor_run := false
 var current_level := 0
 var levels := [preload("res://Levels/level.json").data, preload("res://Levels/level2.json").data, preload("res://Levels/level3.json").data, preload("res://Levels/level4.json").data]
 const level_dialog: Array[String] = [
-	"This dragon looks hungry! Draw a line with your mouth so the food can get to its mouth. Use right click to erase the line",
+	"This dragon looks hungry! Draw a line with your mouse so the food can get to its mouth. Use right click to erase the line",
 	"Looks like someone flipped gravity! Use the G button or click the gravity button on the side to flip gravity and feed these dragons",
 	"One dragon has started getting thirsty from all this sand they ate. Give them a drink of water - the other dragon still wants food!",
 	"appy everyfing uve wearned :3",
