@@ -3,3 +3,5 @@
 addons/godot-git-plugin/
 FTD.exe
 FTD.console.exe
+LevelsAseprite/*
+!LevelsAseprite/*.aseprite

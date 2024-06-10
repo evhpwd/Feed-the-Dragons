@@ -175,8 +175,12 @@ func _on_hud_import_clicked():
 	var dialog := $HUD/ImportDialog
 	dialog.file_selected.connect(
 		func(path: String):
-			var file := FileAccess.open(path, FileAccess.READ)
-			sim.load_level(JSON.parse_string(file.get_as_text()))
+			if path.ends_with(".json"):
+				var file := FileAccess.open(path, FileAccess.READ)
+				sim.load_level(JSON.parse_string(file.get_as_text()))
+			elif path.ends_with(".png"):
+				var image = Image.load_from_file(path)
+				sim.load_image(image)
 	)
 	dialog.popup_centered()
 
