@@ -133,6 +133,20 @@ func load_level(level: Dictionary):
 		else:
 			print("unknown rule!!!!!!!?????????")
 
+func load_image(image: Image):
+	# TODO: Finish this list
+	var cell_colors_map := {
+		Color.SKY_BLUE: CellType.AIR,
+		Color.SEA_GREEN: CellType.GRASS
+	}
+	grid.resize(width * height)
+	grid.fill(CellType.AIR)
+
+	for x in range(image.get_width()):
+		for y in range(image.get_height()):
+			var cell_type: CellType = cell_colors_map[image.get_pixel(x, y)]
+			grid[y * width + x] = cell_type
+
 ##Maps viewport coordinates (i.e. from a click) to the corresponding grid position
 func viewport_to_grid(pos: Vector2i) -> Vector2i:
 	var viewport := get_viewport()
